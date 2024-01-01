@@ -1,7 +1,6 @@
-package com.teamchallenge.bookti.controller;
+package com.teamchallenge.bookti.repository;
 
 import com.teamchallenge.bookti.model.UserEntity;
-import com.teamchallenge.bookti.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -10,7 +9,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
-class UserEntityRepositoryTest {
+class UserRepositoryTest {
 
     @Autowired
     private TestEntityManager entityManager;
