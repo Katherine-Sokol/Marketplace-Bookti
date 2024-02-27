@@ -20,4 +20,10 @@ jobs:
         distribution: 'temurin'
         cache: maven
     - name: Build with Maven
+      env:
+        google-client-id: ${{ secrets.GOOGLE_CLIENT_ID }}
+        google-client-secret: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+        cloudinary-name: ${{ secrets.CLOUDINARY_NAME }}
+        cloudinary-api-secret: ${{ secrets.CLOUDINARY_API_SECRET }}
+        cloudinary-api-key: ${{ secrets.CLOUDINARY_API_KEY }}
       run: mvn -B package --file pom.xml
