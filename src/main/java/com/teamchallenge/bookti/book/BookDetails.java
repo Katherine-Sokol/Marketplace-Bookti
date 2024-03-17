@@ -1,8 +1,7 @@
 package com.teamchallenge.bookti.book;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.time.LocalDate;
+import java.time.Year;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,7 +18,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Getter
-class BookDetails {
+public class BookDetails {
 
   private UUID id;
 
@@ -30,8 +29,7 @@ class BookDetails {
   private String genre;
 
   @JsonProperty("publication_date")
-  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-  private LocalDate publicationDate;
+  private Year publicationDate;
 
   private String language;
 
@@ -64,7 +62,7 @@ class BookDetails {
       String title,
       String author,
       String genre,
-      LocalDate publicationDate,
+      Year publicationDate,
       String language,
       String tradeFormat,
       String imageUrl,

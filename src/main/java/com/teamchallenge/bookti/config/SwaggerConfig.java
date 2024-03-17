@@ -18,27 +18,60 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 @OpenAPIDefinition(
-    info = @Info(
-        title = "Bookti Backend API Documentation",
-        description = "Bookti backend endpoints description",
-        version = "1.0",
-        contact = @Contact(
-            name = "MinoUni",
-            url = "https://github.com/MinoUni"
-        )
-    ),
+    info =
+        @Info(
+            title = "Bookti Backend API Documentation",
+            description = "Bookti backend endpoints description",
+            version = "1.0",
+            contact = @Contact(name = "MinoUni", url = "https://github.com/MinoUni")),
     servers = {
-        @Server(url = "http://localhost:8080", description = "Local dev ENV"),
-        @Server(url = "https://bookti-spring-backend.onrender.com", description = "Deploy dev ENV")
+      @Server(url = "http://localhost:8080", description = "Local dev ENV"),
+      @Server(url = "https://bookti-spring-backend.onrender.com", description = "Deploy dev ENV")
     },
-    security = {@SecurityRequirement(name = "bearerAuth")}
-)
+    security = {@SecurityRequirement(name = "bearerAuth")})
 @SecuritySchemes(
     value = {
-        @SecurityScheme(name = "bearerAuth", description = "JWT auth description",
-            scheme = "bearer", type = SecuritySchemeType.HTTP, bearerFormat = "JWT",
-            in = SecuritySchemeIn.HEADER)
-    }
-)
-class SwaggerConfig {
+      @SecurityScheme(
+          name = "bearerAuth",
+          description = "JWT auth description",
+          scheme = "bearer",
+          type = SecuritySchemeType.HTTP,
+          bearerFormat = "JWT",
+          in = SecuritySchemeIn.HEADER)
+    })
+public class SwaggerConfig {
+
+  public static final String BOOK_PROFILE_SCHEMA =
+      """
+            {
+              "title": "string",
+              "author": "string",
+              "genre": "string",
+              "publication_date": "yyyy",
+              "language": "string",
+              "trade_format": "string",
+              "description": "string"
+            }
+        """;
+  public static final String BOOK_UPDATE_REQ_SCHEMA =
+      """
+            {
+              "title": "string",
+              "author": "string",
+              "genre": "string",
+              "publication_date": "yyyy",
+              "language": "string",
+              "trade_format": "string",
+              "description": "string"
+            }
+        """;
+  public static final String USER_UPDATE_REQ_SCHEMA =
+      """
+            {
+              "full_name": "string",
+              "email": "string",
+              "location": "string",
+              "telegram_id": "string"
+            }
+        """;
 }

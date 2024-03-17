@@ -23,6 +23,8 @@ import com.teamchallenge.bookti.exception.UserNotFoundException;
 import com.teamchallenge.bookti.security.AuthorizedUser;
 import com.teamchallenge.bookti.security.jwt.TokenManager;
 import com.teamchallenge.bookti.utils.EmailUtils;
+
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -505,7 +507,15 @@ class UserControllerTest {
   void shouldReturnMailResetPasswordResponseWithStatusCode200() throws Exception {
     String mail = "a@gmail.com";
     MailResetPasswordRequest mailResetPasswordRequest = new MailResetPasswordRequest(mail);
-    UserInfo userInfo = new UserInfo(UUID.randomUUID(), mail, "fullName", null);
+    UserFullInfo userInfo =
+        new UserFullInfo(
+            UUID.randomUUID(),
+            mail,
+            "fullName",
+            "telegramId",
+            LocalDate.now(),
+            "location",
+            "avatarUrl");
     when(userService.findUserByEmail(mailResetPasswordRequest.getEmail())).thenReturn(userInfo);
 
     String token = UUID.randomUUID().toString();

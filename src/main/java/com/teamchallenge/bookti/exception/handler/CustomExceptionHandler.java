@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toList;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
@@ -42,33 +43,32 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
 
   @Override
-  protected ResponseEntity<Object> handleExceptionInternal(@NonNull Exception e,
-                                                           Object body,
-                                                           @NonNull HttpHeaders headers,
-                                                           @NonNull HttpStatusCode statusCode,
-                                                           @NonNull WebRequest request) {
+  protected ResponseEntity<Object> handleExceptionInternal(
+      @NonNull Exception e,
+      Object body,
+      @NonNull HttpHeaders headers,
+      @NonNull HttpStatusCode statusCode,
+      @NonNull WebRequest request) {
     ErrorResponse errorResponse = new ErrorResponse(statusCode.value(), e.getMessage());
     return super.handleExceptionInternal(e, errorResponse, headers, statusCode, request);
   }
 
   @Override
-  protected ResponseEntity<Object> handleMethodArgumentNotValid(@NonNull
-                                                                  MethodArgumentNotValidException e,
-                                                                @NonNull HttpHeaders headers,
-                                                                @NonNull HttpStatusCode status,
-                                                                @NonNull WebRequest request) {
-    return e
-        .getBindingResult()
-        .getAllErrors()
-        .stream()
+  protected ResponseEntity<Object> handleMethodArgumentNotValid(
+      @NonNull MethodArgumentNotValidException e,
+      @NonNull HttpHeaders headers,
+      @NonNull HttpStatusCode status,
+      @NonNull WebRequest request) {
+    return e.getBindingResult().getAllErrors().stream()
         .map(ObjectError::getDefaultMessage)
-        .collect(collectingAndThen(toList(), errorMessages ->
-            ResponseEntity
-                .status(status)
-                .body(new ErrorResponse(
-                    status.value(),
-                    "Validation failed",
-                    errorMessages))));
+        .collect(
+            collectingAndThen(
+                toList(),
+                errorMessages ->
+                    ResponseEntity.status(status)
+                        .body(
+                            new ErrorResponse(
+                                status.value(), "Validation failed", errorMessages))));
   }
 
   @ExceptionHandler(UserAlreadyExistsException.class)
@@ -93,9 +93,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
    */
   @ExceptionHandler(AuthenticationException.class)
   public ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException e) {
-    ErrorResponse errorResponse = new ErrorResponse(
-        UNAUTHORIZED.value(), e.getMessage()
-    );
+    ErrorResponse errorResponse = new ErrorResponse(UNAUTHORIZED.value(), e.getMessage());
     return ResponseEntity.status(UNAUTHORIZED).body(errorResponse);
   }
 
@@ -126,9 +124,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
    */
   @ExceptionHandler(BadCredentialsException.class)
   public ResponseEntity<ErrorResponse> handleBadCredentialsException(BadCredentialsException e) {
-    ErrorResponse errorResponse = new ErrorResponse(
-        UNAUTHORIZED.value(), e.getMessage()
-    );
+    ErrorResponse errorResponse = new ErrorResponse(UNAUTHORIZED.value(), e.getMessage());
     return ResponseEntity.status(UNAUTHORIZED).body(errorResponse);
   }
 
@@ -156,5 +152,23 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
   public ResponseEntity<ErrorResponse> handleBookNotFoundException(BookNotFoundException e) {
     ErrorResponse errorResponse = new ErrorResponse(NOT_FOUND.value(), e.getMessage());
     return ResponseEntity.status(NOT_FOUND).body(errorResponse);
+  }
+
+  /**
+   * Handles {@link Exception}.
+   *
+   * @param e {@link Exception} that can be thrown
+   * @return {@link ErrorResponse} with {@link HttpStatus#INTERNAL_SERVER_ERROR internal server
+   *     error status}
+   */
+  @ExceptionHandler(Exception.class)
+  public ResponseEntity<ErrorResponse> handleInternalException(Exception e) {
+    ErrorResponse errorResponse;
+    if (e instanceof NullPointerException) {
+      errorResponse = new ErrorResponse(BAD_REQUEST.value(), e.getMessage());
+      return ResponseEntity.status(BAD_REQUEST).body(errorResponse);
+    }
+    errorResponse = new ErrorResponse(INTERNAL_SERVER_ERROR.value(), e.getMessage());
+    return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(errorResponse);
   }
 }

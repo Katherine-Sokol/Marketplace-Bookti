@@ -4,6 +4,10 @@ server:
 spring:
   application:
     name: bookti
+  servlet:
+    multipart:
+      max-file-size: -1
+      max-request-size: -1
   sql:
     init:
       mode: always
@@ -73,14 +77,14 @@ application:
     - https://marketplace-bookti.vercel.app
     - http://localhost:5173
 
-logging:
-  level:
-    root: INFO
-    org.springframework.security: INFO
-    net.ttddyy.dsproxy.listener: INFO
+springdoc:
+  swagger-ui:
+    operationsSorter: method
+    tagsSorter: alpha
+    disable-swagger-default-url: false
 
 management:
   endpoints:
     web:
       exposure:
-        include: "*"
+        exclude: "*"

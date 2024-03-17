@@ -1,6 +1,8 @@
 package com.teamchallenge.bookti.user;
 
+import static com.teamchallenge.bookti.config.SwaggerConfig.USER_UPDATE_REQ_SCHEMA;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
 import com.teamchallenge.bookti.dto.AppResponse;
 import com.teamchallenge.bookti.dto.ErrorResponse;
@@ -10,6 +12,7 @@ import com.teamchallenge.bookti.exception.UserAlreadyExistsException;
 import com.teamchallenge.bookti.security.jwt.TokenManager;
 import com.teamchallenge.bookti.utils.EmailUtils;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -29,12 +32,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * UserController is RestController witch works with user's information.
@@ -113,6 +118,14 @@ class UserController {
               @Content(
                   mediaType = APPLICATION_JSON_VALUE,
                   schema = @Schema(implementation = ErrorResponse.class))
+            }),
+        @ApiResponse(
+            responseCode = "500",
+            description = "INTERNAL_SERVER_ERROR",
+            content = {
+              @Content(
+                  mediaType = APPLICATION_JSON_VALUE,
+                  schema = @Schema(implementation = ErrorResponse.class))
             })
       })
   @PostMapping(path = "/authorize/signup")
@@ -148,6 +161,14 @@ class UserController {
         @ApiResponse(
             responseCode = "401",
             description = "Invalid user credentials",
+            content = {
+              @Content(
+                  mediaType = APPLICATION_JSON_VALUE,
+                  schema = @Schema(implementation = ErrorResponse.class))
+            }),
+        @ApiResponse(
+            responseCode = "500",
+            description = "INTERNAL_SERVER_ERROR",
             content = {
               @Content(
                   mediaType = APPLICATION_JSON_VALUE,
@@ -196,6 +217,14 @@ class UserController {
         @ApiResponse(
             responseCode = "409",
             description = "Provided refresh JWT is <Revoked>",
+            content = {
+              @Content(
+                  mediaType = APPLICATION_JSON_VALUE,
+                  schema = @Schema(implementation = ErrorResponse.class))
+            }),
+        @ApiResponse(
+            responseCode = "500",
+            description = "INTERNAL_SERVER_ERROR",
             content = {
               @Content(
                   mediaType = APPLICATION_JSON_VALUE,
@@ -251,6 +280,14 @@ class UserController {
               @Content(
                   mediaType = APPLICATION_JSON_VALUE,
                   schema = @Schema(implementation = ErrorResponse.class))
+            }),
+        @ApiResponse(
+            responseCode = "500",
+            description = "INTERNAL_SERVER_ERROR",
+            content = {
+              @Content(
+                  mediaType = APPLICATION_JSON_VALUE,
+                  schema = @Schema(implementation = ErrorResponse.class))
             })
       })
   @PostMapping("/authorize/token/revoke")
@@ -295,6 +332,14 @@ class UserController {
         @ApiResponse(
             responseCode = "404",
             description = "User not found",
+            content = {
+              @Content(
+                  mediaType = APPLICATION_JSON_VALUE,
+                  schema = @Schema(implementation = ErrorResponse.class))
+            }),
+        @ApiResponse(
+            responseCode = "500",
+            description = "INTERNAL_SERVER_ERROR",
             content = {
               @Content(
                   mediaType = APPLICATION_JSON_VALUE,
@@ -345,6 +390,14 @@ class UserController {
               @Content(
                   mediaType = APPLICATION_JSON_VALUE,
                   schema = @Schema(implementation = ErrorResponse.class))
+            }),
+        @ApiResponse(
+            responseCode = "500",
+            description = "INTERNAL_SERVER_ERROR",
+            content = {
+              @Content(
+                  mediaType = APPLICATION_JSON_VALUE,
+                  schema = @Schema(implementation = ErrorResponse.class))
             })
       })
   @PostMapping(path = "/authorize/login/resetPassword/savePassword")
@@ -367,7 +420,7 @@ class UserController {
    * Returns information about user.
    *
    * @param id user's uuid
-   * @return {@link UserInfo}
+   * @return {@link UserFullInfo}
    */
   @Operation(
       summary = "Find User information",
@@ -378,7 +431,7 @@ class UserController {
             content = {
               @Content(
                   mediaType = APPLICATION_JSON_VALUE,
-                  schema = @Schema(implementation = UserInfo.class))
+                  schema = @Schema(implementation = UserFullInfo.class))
             }),
         @ApiResponse(
             responseCode = "401",
@@ -403,11 +456,76 @@ class UserController {
               @Content(
                   mediaType = APPLICATION_JSON_VALUE,
                   schema = @Schema(implementation = ErrorResponse.class))
+            }),
+        @ApiResponse(
+            responseCode = "500",
+            description = "INTERNAL_SERVER_ERROR",
+            content = {
+              @Content(
+                  mediaType = APPLICATION_JSON_VALUE,
+                  schema = @Schema(implementation = ErrorResponse.class))
             })
       })
   @GetMapping(path = "/users/{id}")
   @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER') and authentication.principal.id == #id")
-  public ResponseEntity<UserInfo> getUserInfo(@PathVariable UUID id) {
+  public ResponseEntity<UserFullInfo> getUserInfo(@PathVariable UUID id) {
     return ResponseEntity.status(HttpStatus.OK).body(userService.findById(id));
+  }
+
+  @Operation(
+      summary = "Update user information",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "User information updated",
+            content = {
+              @Content(
+                  mediaType = APPLICATION_JSON_VALUE,
+                  schema = @Schema(implementation = UserFullInfo.class))
+            }),
+        @ApiResponse(
+            responseCode = "401",
+            description = "UNAUTHORIZED",
+            content = {
+              @Content(
+                  mediaType = APPLICATION_JSON_VALUE,
+                  schema = @Schema(implementation = ErrorResponse.class))
+            }),
+        @ApiResponse(
+            responseCode = "403",
+            description = "ACCESS_DENIED",
+            content = {
+              @Content(
+                  mediaType = APPLICATION_JSON_VALUE,
+                  schema = @Schema(implementation = ErrorResponse.class))
+            }),
+        @ApiResponse(
+            responseCode = "404",
+            description = "NOT_FOUND",
+            content = {
+              @Content(
+                  mediaType = APPLICATION_JSON_VALUE,
+                  schema = @Schema(implementation = ErrorResponse.class))
+            }),
+        @ApiResponse(
+            responseCode = "500",
+            description = "INTERNAL_SERVER_ERROR",
+            content = {
+              @Content(
+                  mediaType = APPLICATION_JSON_VALUE,
+                  schema = @Schema(implementation = ErrorResponse.class))
+            })
+      })
+  @PatchMapping(
+      value = "/users/{id}",
+      consumes = {APPLICATION_JSON_VALUE, MULTIPART_FORM_DATA_VALUE},
+      produces = APPLICATION_JSON_VALUE)
+  @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER') and authentication.principal.id == #id")
+  public ResponseEntity<Object> updateUserInfo(
+      @PathVariable UUID id,
+      @Parameter(description = USER_UPDATE_REQ_SCHEMA, required = true) @RequestPart("user_update")
+          UserUpdateReq userUpdateInfo,
+      @RequestPart(value = "image", required = false) final MultipartFile image) {
+    return ResponseEntity.ok(userService.updateUserInfo(id, userUpdateInfo, image));
   }
 }

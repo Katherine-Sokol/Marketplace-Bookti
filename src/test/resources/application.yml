@@ -1,4 +1,6 @@
 spring:
+  profiles:
+    active: test
   application:
     name: bookti-test
   sql:
@@ -13,8 +15,8 @@ spring:
       hibernate:
         format-sql: true
   datasource:
-    driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:db;DB_CLOSE_DELAY=-1
+    driver-class-name: ${DRIVER_CLASS_NAME}
+    url: jdbc:${DB_URL}
     username: sa
     password: sa
   mail:

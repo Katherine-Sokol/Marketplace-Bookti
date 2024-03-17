@@ -3,14 +3,16 @@ package com.teamchallenge.bookti.book;
 import static jakarta.persistence.FetchType.LAZY;
 
 import com.teamchallenge.bookti.user.UserEntity;
+import com.teamchallenge.bookti.utils.YearConverter;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.time.LocalDate;
+import java.time.Year;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -62,8 +64,9 @@ public class Book {
   @Column
   private String language;
 
-  @Column(name = "publication_date", columnDefinition = "DATE")
-  private LocalDate publicationDate;
+  @Column(name = "publication_date", columnDefinition = "smallint")
+  @Convert(converter = YearConverter.class)
+  private Year publicationDate;
 
   @Column(name = "trade_format")
   private String tradeFormat;

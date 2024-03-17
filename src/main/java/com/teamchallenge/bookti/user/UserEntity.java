@@ -10,6 +10,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -49,11 +50,21 @@ public class UserEntity {
   @Column(nullable = false)
   private String password;
 
+  @Builder.Default
+  @Column(name = "creation_date", columnDefinition = "DATE")
+  private LocalDate creationDate = LocalDate.now();
+
+  @Column(name = "avatar_name")
+  private String avatarName;
+
   @Column(name = "avatar_url")
   private String avatarUrl;
 
   @Column(nullable = false)
-  private String city;
+  private String location;
+
+  @Column(name = "telegram_id", length = 32)
+  private String telegramId;
 
   @Column
   @Enumerated(EnumType.STRING)

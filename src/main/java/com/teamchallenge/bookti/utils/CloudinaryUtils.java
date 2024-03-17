@@ -95,7 +95,7 @@ public class CloudinaryUtils {
                     (byte) 0x1A,
                     (byte) 0x0A));
     try {
-      byte[] bytes = Arrays.copyOfRange(file.getBytes(), 0, 0);
+      byte[] bytes = Arrays.copyOfRange(file.getBytes(), 0, 8);
       if (signatures.values().stream()
           .anyMatch(
               signature ->
